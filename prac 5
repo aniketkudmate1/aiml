@@ -1,0 +1,45 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# 1. Load dataset
+df = pd.read_csv("titanic.csv")
+
+# 2. Data cleaning
+df = df.drop_duplicates()
+df = df.drop(columns=['PassengerId', 'Name', 'Ticket', 'Cabin'])
+
+# 3. Missing value handling
+df['Age'] = df['Age'].fillna(df['Age'].median())
+df['Embarked'] = df['Embarked'].fillna(df['Embarked'].mode()[0])
+
+# 4. Encoding
+df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
+df = pd.get_dummies(df, columns=['Embarked'], dtype=int)
+
+# 5. Statistical analysis
+print(df.describe())
+
+# 6. Data visualization
+df['Age'].hist()
+plt.show()
+
+sns.boxplot(x=df['Fare'])
+plt.show()
+
+# 7. Feature scaling
+scaler = StandardScaler()
+df[['Age', 'Fare']] = scaler.fit_transform(df[['Age', 'Fare']])
+
+# 8. Training and testing split
+X = df.drop('Survived', axis=1)
+y = df['Survived']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+print("Training:", X_train.shape)
+print("Testing:", X_test.shape)
