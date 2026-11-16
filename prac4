@@ -1,0 +1,101 @@
+facts = {"fever", "cough", "fatigue", "occupancy"}
+
+rules = [
+    (["fever", "cough"], "flu_like"),
+    (["flu_like", "fatigue"], "rest_recommended"),
+    (["fever", "rash"], "consult_advisor"),
+    (["smoke_detected"], "fire_alert"),
+    (["fire_alert", "occupancy"], "evacuation_required")
+]
+
+
+def forward_chain(facts, rules, target):
+    known = set(facts)
+    trace = []
+
+    while True:
+        updated = False
+
+        for conditions, result in rules:
+            if all(item in known for item in conditions):
+                if result not in known:
+                    known.add(result)
+                    trace.append(f"{conditions} -> {result}")
+                    updated = True
+
+                    if result == target:
+                        return True, trace
+
+        if not updated:
+            break
+
+    return target in known, trace
+
+
+def backward_chain(target, facts, rules, visited=None, trace=None):
+    if visited is None:
+        visited = set()
+
+    if trace is None:
+        trace = []
+
+    if target in facts:
+        trace.append(f"FACT: {target}")
+        return True, trace
+
+    if target in visited:
+        return False, trace
+
+    visited.add(target)
+
+    for conditions, result in rules:
+        if result == target:
+            trace.append(f"RULE: {conditions} -> {result}")
+            proved = True
+
+            for condition in conditions:
+                result_found, trace = backward_chain(
+                    condition, facts, rules, visited, trace
+                )
+
+                if not result_found:
+                    proved = False
+                    break
+
+            if proved:
+                trace.append(f"PROVED: {target}")
+                return True, trace
+
+    trace.append(f"NOT PROVED: {target}")
+    return False, trace
+
+
+def show_result(query, mode, result, trace):
+    print("\nRULE-BASED EXPERT SYSTEM")
+    print("Mode :", mode)
+    print("Query :", query)
+    print("Result :", "PROVED" if result else "NOT PROVED")
+    print("\nTracing:")
+
+    for step in trace:
+        print(step)
+
+
+def main():
+    query = input("Enter query: ").strip().lower()
+    mode = input("Enter mode (forward/backward): ").strip().lower()
+
+    if mode == "forward":
+        result, trace = forward_chain(facts, rules, query)
+        show_result(query, "Forward Chaining", result, trace)
+
+    elif mode == "backward":
+        result, trace = backward_chain(query, facts, rules)
+        show_result(query, "Backward Chaining", result, trace)
+
+    else:
+        print("Invalid inference mode.")
+
+
+if __name__ == "__main__":
+    main()
