@@ -1,0 +1,35 @@
+from sklearn.datasets import load_digits
+from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+
+# Load dataset
+X, y = load_digits(return_X_y=True)
+print("Before:", X.shape[1])
+
+# PCA
+p = PCA(n_components=2)
+Z = p.fit_transform(X)
+print("After:", Z.shape[1])
+
+# Visualization
+plt.scatter(Z[:,0], Z[:,1], c=y)
+plt.show()
+
+# Split Data
+X1, X2, y1, y2 = train_test_split(X, y, random_state=0)
+
+# Before PCA
+m = RandomForestClassifier(random_state=0).fit(X1, y1)
+a = accuracy_score(y2, m.predict(X2))
+
+# After PCA
+p = PCA(n_components=2)
+X1, X2 = p.fit_transform(X1), p.transform(X2)
+m = RandomForestClassifier(random_state=0).fit(X1, y1)
+b = accuracy_score(y2, m.predict(X2))
+
+print("Accuracy Before:", a)
+print("Accuracy After:", b)
