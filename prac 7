@@ -1,0 +1,54 @@
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.metrics import accuracy_score, precision_score
+from sklearn.metrics import recall_score, f1_score, confusion_matrix
+
+# 2. Load Dataset
+data = load_breast_cancer()
+
+X = data.data
+y = data.target
+
+# 3. Split Dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# 4. Preprocessing
+scaler = StandardScaler()
+
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# 5. Logistic Regression
+lr = LogisticRegression(max_iter=1000)
+lr.fit(X_train, y_train)
+
+y_pred1 = lr.predict(X_test)
+
+# 6. KNN
+knn = KNeighborsClassifier(n_neighbors=5)
+knn.fit(X_train, y_train)
+
+y_pred2 = knn.predict(X_test)
+
+# 7. Evaluation Function
+def evaluate(y_test, y_pred):
+    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print("Precision:", precision_score(y_test, y_pred))
+    print("Recall:", recall_score(y_test, y_pred))
+    print("F1 Score:", f1_score(y_test, y_pred))
+    print("Confusion Matrix:")
+    print(confusion_matrix(y_test, y_pred))
+
+# 8. Logistic Regression Results
+print("\nLogistic Regression")
+evaluate(y_test, y_pred1)
+
+# 9. KNN Results
+print("\nKNN")
+evaluate(y_test, y_pred2)
