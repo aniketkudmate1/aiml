@@ -1,0 +1,111 @@
+import heapq
+
+graph = {
+    'A': [('B', 1), ('C', 4)],
+    'B': [('D', 2), ('E', 5)],
+    'C': [('E', 1)],
+    'D': [('G', 3)],
+    'E': [('G', 2)],
+    'G': []
+}
+
+heuristic = {
+    'A': 6,
+    'B': 5,
+    'C': 2,
+    'D': 3,
+    'E': 1,
+    'G': 0
+}
+
+
+def get_path(parent, start, goal):
+    path = []
+    node = goal
+
+    while node is not None:
+        path.append(node)
+        node = parent[node]
+
+    path.reverse()
+    return path
+
+
+def greedy_best_first(start, goal):
+    open_list = [(heuristic[start], start)]
+    parent = {start: None}
+    visited = set()
+    traversal = []
+
+    while open_list:
+        _, current = heapq.heappop(open_list)
+
+        if current in visited:
+            continue
+
+        visited.add(current)
+        traversal.append(current)
+
+        if current == goal:
+            return get_path(parent, start, goal), traversal
+
+        for next_node, _ in graph[current]:
+            if next_node not in visited:
+                if next_node not in parent:
+                    parent[next_node] = current
+
+                heapq.heappush(
+                    open_list,
+                    (heuristic[next_node], next_node)
+                )
+
+    return [], traversal
+
+
+def a_star(start, goal):
+    open_list = [(heuristic[start], start)]
+    g_cost = {start: 0}
+    parent = {start: None}
+    visited = set()
+    traversal = []
+
+    while open_list:
+        _, current = heapq.heappop(open_list)
+
+        if current in visited:
+            continue
+
+        visited.add(current)
+        traversal.append(current)
+
+        if current == goal:
+            return get_path(parent, start, goal), traversal, g_cost[current]
+
+        for next_node, cost in graph[current]:
+            new_g = g_cost[current] + cost
+
+            if next_node not in g_cost or new_g < g_cost[next_node]:
+                g_cost[next_node] = new_g
+                parent[next_node] = current
+
+                f_value = new_g + heuristic[next_node]
+                heapq.heappush(open_list, (f_value, next_node))
+
+    return [], traversal, 0
+
+
+start = 'A'
+goal = 'G'
+
+greedy_path, greedy_traversal = greedy_best_first(start, goal)
+
+print("Greedy Best First Search")
+print("Traversal:", " -> ".join(greedy_traversal))
+print("Final Path:", " -> ".join(greedy_path))
+
+astar_path, astar_traversal, astar_cost = a_star(start, goal)
+
+print("\nA* Search")
+print("Traversal:", " -> ".join(astar_traversal))
+print("Final Path:", " -> ".join(astar_path))
+print("Total Cost:", astar_cost)
