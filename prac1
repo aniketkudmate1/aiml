@@ -1,0 +1,32 @@
+def smart_home():
+
+    temp = float(input("Enter temperature: "))
+
+    motion = input("Motion detected? (yes/no): ")
+
+    light = input("Light condition (dark/bright): ")
+
+    smoke = input("Smoke detected? (yes/no): ")
+
+    home = input("Home occupied? (yes/no): ")
+
+    ac = "ON" if temp > 30 else "OFF"
+
+    lights = "ON" if motion == "yes" and light == "dark" else "OFF"
+
+    alarm = "ON" if smoke == "yes" else "OFF"
+
+    door = "LOCKED" if home == "no" else "UNLOCKED"
+
+    print("\n--- SMART HOME REPORT ---")
+
+    print("AC:", ac)
+
+    print("Lights:", lights)
+
+    print("Alarm:", alarm)
+
+    print("Door:", door)
+
+
+smart_home()
